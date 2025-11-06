@@ -1,4 +1,4 @@
--- ShiftLock Clean Edition (Right Middle Button)
+-- ShiftLock Clean Edition (Round Button - Right Middle)
 -- Remade by Hanzyy (Base by tibe0124)
 
 local CoreGui = game:GetService("CoreGui")
@@ -17,14 +17,21 @@ ShiftLockScreenGui.Parent = CoreGui
 ShiftLockScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ShiftLockScreenGui.ResetOnSpawn = false
 
--- 🔘 Tombol di kanan-tengah layar
+-- 🔘 Tombol Bulat di kanan-tengah
 ShiftLockButton.Parent = ShiftLockScreenGui
-ShiftLockButton.BackgroundTransparency = 1
+ShiftLockButton.BackgroundTransparency = 0
 ShiftLockButton.AnchorPoint = Vector2.new(1, 0.5)
-ShiftLockButton.Position = UDim2.new(0.98, 0, 0.5, 0) -- kanan-tengah
-ShiftLockButton.Size = UDim2.new(0.05, 0, 0.08, 0)
+ShiftLockButton.Position = UDim2.new(0.98, 0, 0.5, 0)
+ShiftLockButton.Size = UDim2.new(0.06, 0, 0.06, 0) -- persegi agar bulat sempurna
 ShiftLockButton.SizeConstraint = Enum.SizeConstraint.RelativeXX
+ShiftLockButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 ShiftLockButton.Image = "rbxasset://textures/ui/mouseLock_off@2x.png"
+ShiftLockButton.ScaleType = Enum.ScaleType.Fit
+
+-- Buat bulat sempurna
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(1, 0) -- 100% lingkaran
+UICorner.Parent = ShiftLockButton
 
 -- 🔳 Kursor ShiftLock
 ShiftlockCursor.Name = "ShiftlockCursor"
@@ -41,7 +48,7 @@ local Active = nil
 local EnabledOffset = CFrame.new(1.7, 0, 0)
 local DisabledOffset = CFrame.new(-1.7, 0, 0)
 
--- Fungsi toggle
+-- Fungsi toggle ShiftLock
 local function toggleShiftlock()
 	if not Active then
 		Active = RunService.RenderStepped:Connect(function()
@@ -84,5 +91,5 @@ local function toggleShiftlock()
 	end
 end
 
--- Klik tombol
+-- Klik tombol untuk aktif/nonaktif
 ShiftLockButton.MouseButton1Click:Connect(toggleShiftlock)
