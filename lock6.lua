@@ -1,10 +1,11 @@
--- ShiftLock Clean Edition (Round Button - Right Middle)
+-- ShiftLock Enhanced Edition (Round Button + Cursor Follow Body)
 -- Remade by Hanzyy (Base by tibe0124)
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Player = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 local MaxLength = 900000
 
 -- GUI
@@ -22,23 +23,22 @@ ShiftLockButton.Parent = ShiftLockScreenGui
 ShiftLockButton.BackgroundTransparency = 0
 ShiftLockButton.AnchorPoint = Vector2.new(1, 0.5)
 ShiftLockButton.Position = UDim2.new(0.98, 0, 0.5, 0)
-ShiftLockButton.Size = UDim2.new(0.06, 0, 0.06, 0) -- persegi agar bulat sempurna
+ShiftLockButton.Size = UDim2.new(0.06, 0, 0.06, 0)
 ShiftLockButton.SizeConstraint = Enum.SizeConstraint.RelativeXX
 ShiftLockButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 ShiftLockButton.Image = "rbxasset://textures/ui/mouseLock_off@2x.png"
 ShiftLockButton.ScaleType = Enum.ScaleType.Fit
 
--- Buat bulat sempurna
+-- Buat tombol jadi bulat sempurna
 local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(1, 0) -- 100% lingkaran
+UICorner.CornerRadius = UDim.new(1, 0)
 UICorner.Parent = ShiftLockButton
 
--- 🔳 Kursor ShiftLock
+-- 🔳 Cursor ShiftLock
 ShiftlockCursor.Name = "ShiftlockCursor"
 ShiftlockCursor.Parent = ShiftLockScreenGui
 ShiftlockCursor.Image = "rbxasset://textures/MouseLockedCursor.png"
 ShiftlockCursor.Size = UDim2.new(0.03, 0, 0.03, 0)
-ShiftlockCursor.Position = UDim2.new(0.5, 0, 0.5, 0)
 ShiftlockCursor.AnchorPoint = Vector2.new(0.5, 0.5)
 ShiftlockCursor.BackgroundTransparency = 1
 ShiftlockCursor.Visible = false
@@ -54,40 +54,44 @@ local function toggleShiftlock()
 		Active = RunService.RenderStepped:Connect(function()
 			local char = Player.Character
 			if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then return end
-			local humanoid = char.Humanoid
-			humanoid.AutoRotate = false
-			ShiftLockButton.Image = "rbxasset://textures/ui/mouseLock_on@2x.png"
-			ShiftlockCursor.Visible = true
 
 			local hrp = char.HumanoidRootPart
+			local humanoid = char.Humanoid
+			humanoid.AutoRotate = false
+
+			-- Kamera dan orientasi tubuh
 			hrp.CFrame = CFrame.new(
 				hrp.Position,
 				Vector3.new(
-					workspace.CurrentCamera.CFrame.LookVector.X * MaxLength,
+					Camera.CFrame.LookVector.X * MaxLength,
 					hrp.Position.Y,
-					workspace.CurrentCamera.CFrame.LookVector.Z * MaxLength
+					Camera.CFrame.LookVector.Z * MaxLength
 				)
 			)
-			workspace.CurrentCamera.CFrame *= EnabledOffset
-			workspace.CurrentCamera.Focus =
-				CFrame.fromMatrix(
-					workspace.CurrentCamera.Focus.Position,
-					workspace.CurrentCamera.CFrame.RightVector,
-					workspace.CurrentCamera.CFrame.UpVector
-				) * EnabledOffset
+
+			-- Update posisi cursor agar berada di depan tubuh karakter (sekitar 3 stud di depan)
+			local frontPos = hrp.Position + hrp.CFrame.LookVector * 3
+			local screenPoint, onScreen = Camera:WorldToViewportPoint(frontPos)
+			if onScreen then
+				ShiftlockCursor.Position = UDim2.new(0, screenPoint.X, 0, screenPoint.Y)
+			end
+
+			ShiftLockButton.Image = "rbxasset://textures/ui/mouseLock_on@2x.png"
+			ShiftlockCursor.Visible = true
 		end)
 	else
 		pcall(function()
 			Active:Disconnect()
 			Active = nil
 		end)
+
 		local char = Player.Character
 		if char and char:FindFirstChild("Humanoid") then
 			char.Humanoid.AutoRotate = true
 		end
+
 		ShiftLockButton.Image = "rbxasset://textures/ui/mouseLock_off@2x.png"
 		ShiftlockCursor.Visible = false
-		workspace.CurrentCamera.CFrame *= DisabledOffset
 	end
 end
 
